@@ -54,6 +54,12 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/products/search")
+    public ResponseEntity<List<Product>> searchProduct(@RequestParam String keyword) {
+        List<Product> products = productService.searchProduct(keyword);
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
 //    @PostMapping("/product_with_image")
 //    public ResponseEntity<?> addProductWithImage(@RequestPart Product product, @RequestPart MultipartFile imageFile) {
 //        try {

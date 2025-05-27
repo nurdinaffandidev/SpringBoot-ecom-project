@@ -47,6 +47,11 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    public List<Product> searchProduct(String keyword) {
+        System.out.println("keyword: " + keyword);
+        return productRepository.searchProducts(keyword);
+    }
+
 //    public Product addProductWithImage(Product product, MultipartFile imageFile) throws IOException {
 //        product.setImageName(imageFile.getOriginalFilename());
 //        product.setImageType(imageFile.getContentType());
