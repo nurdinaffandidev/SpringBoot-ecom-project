@@ -2,6 +2,7 @@ package com.nurdinaffandidev.SpringBoot_ecom_project.product.controller;
 
 import com.nurdinaffandidev.SpringBoot_ecom_project.product.model.Product;
 import com.nurdinaffandidev.SpringBoot_ecom_project.product.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,11 @@ public class ProductController {
 
     @Autowired
     ProductService productService;
+
+    @GetMapping("/")
+    public String greet(HttpServletRequest request) {
+        return "Welcome. Session id: " + request.getSession().getId();
+    }
 
     @GetMapping("/products")
     public ResponseEntity<List<Product>> getAllProducts() {
