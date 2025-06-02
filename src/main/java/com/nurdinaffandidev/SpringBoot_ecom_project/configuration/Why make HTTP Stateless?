@@ -1,0 +1,75 @@
+explanation video: https://www.youtube.com/watch?v=20tpk8A_xa0&t=20s
+
+Making HTTP stateless — especially in REST APIs — means that
+- each request is independent and contains all the information needed to process it.
+- This design choice helps avoid the need to manage session IDs on the server side.
+
+---
+
+### 🌐 Why Make HTTP Stateless?
+
+HTTP is inherently stateless — each request doesn't remember previous ones. RESTful design embraces this property.
+
+Here's why you want it to stay that way, especially to avoid session ID management:
+---
+
+### ✅ 1. **Scalability**
+
+* In a stateless system, no server memory is needed to store user session data.
+* Requests can go to any server in a load-balanced environment.
+* This makes it easy to scale horizontally (add more servers).
+
+---
+
+### ✅ 2. **Simplicity**
+
+* No need to track session creation, expiration, or invalidation.
+* Clients (not the server) are responsible for including auth credentials, like a "JWT token".
+
+---
+
+### ✅ 3. **Better Performance**
+
+* No need to read/write session data on the server for each request.
+* Reduces memory usage and I/O operations.
+
+---
+
+### ✅ 4. **Improved Security**
+
+* Sessions can be hijacked if session IDs are leaked.
+* Stateless auth (e.g., JWTs) avoids that by embedding user info in the token itself, which is often signed or encrypted.
+
+---
+
+### 🤔 So, why avoid session IDs?
+
+| Issue with Session IDs            | Why It's a Problem in Stateless Design       |
+| --------------------------------- | -------------------------------------------- |
+| Stored on server                  | Breaks statelessness — must remember clients |
+| Needs session management          | More complex, error-prone                    |
+| Hard to scale/load-balance        | Requires sticky sessions or shared memory    |
+| Can be stolen (session hijacking) | Adds security risk if not handled carefully  |
+
+---
+
+### ✅ Instead: Use Stateless Auth (like JWT)
+
+* Client stores token (e.g., in localStorage).
+* Each request includes the token in the header:
+
+  ```http
+  Authorization: Bearer <token>
+  ```
+* No need for server-side session tracking.
+
+---
+
+### 🧾 Summary
+
+We make HTTP stateless to:
+
+* Simplify server logic
+* Avoid session tracking
+* Improve scalability and performance
+* Reduce security risks
