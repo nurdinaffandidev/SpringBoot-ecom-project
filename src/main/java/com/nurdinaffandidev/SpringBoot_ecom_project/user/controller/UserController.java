@@ -28,4 +28,9 @@ public class UserController {
         User addedUser = userService.registerUser(newUser);
         return new ResponseEntity<>(addedUser, HttpStatus.CREATED);
     }
+
+    @PostMapping("/login")
+    public String login(@RequestBody User user) {
+        return userService.verify(user);
+    }
 }
