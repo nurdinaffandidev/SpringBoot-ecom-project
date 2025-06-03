@@ -98,3 +98,93 @@ It has 3 parts, separated by dots:
 | Secure by default   | ⚠️ Only if HTTPS + best practices | ✅ Yes (with secure cookies) |
 
 ---
+
+
+### ✅ What is a Claim in a JWT?
+
+A 'Claim' is a piece of information stored inside a JWT token.
+Think of it like a key-value pair that tells the backend something about the user or the token.
+
+---
+
+### 🔍 Example: JWT Payload with Claims
+
+```json
+{
+  "sub": "1234567890",
+  "username": "john_doe",
+  "role": "admin",
+  "iat": 1717380000,
+  "exp": 1717383600
+}
+```
+
+Each of these fields is a claim:
+
+* `sub` = subject (typically user ID)
+* `username` = custom claim
+* `role` = custom claim
+* `iat` = issued at time
+* `exp` = expiration time
+
+---
+
+### 🧩 Types of Claims
+
+| Type           | Description                                    | Example                          |
+| -------------- | ---------------------------------------------- | -------------------------------- |
+| Registered     | Standard claims defined by the JWT spec        | `iss`, `exp`, `iat`, `sub`, etc. |
+| Public         | Custom claims with a defined naming convention | `email`, `username`, `role`      |
+| Private        | Custom claims defined between two systems      | `department`, `tier`             |
+
+---
+
+### 🛠️ Why Use Claims in JWT?
+
+1. Store user identity info
+   (e.g. user ID, username)
+
+2. Store roles or permissions
+   (e.g. `role: admin`, `permissions: [read, write]`)
+
+3. Set token expiration and metadata
+   (e.g. `exp`, `iat`, `iss`)
+
+4. Stateless authentication
+   Everything needed to validate the user is **inside the token**.
+
+---
+
+### 🔧 Claim Example in Java (using `io.jsonwebtoken.Jwts`)
+
+```java
+String token = Jwts.builder()
+    .setSubject("123456")
+    .claim("username", "john_doe")
+    .claim("role", "admin")
+    .setIssuedAt(new Date())
+    .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 hour
+    .signWith(secretKey)
+    .compact();
+```
+
+---
+
+### 🚫 Security Note
+
+* Never put sensitive data (like passwords) in claims — JWTs can be decoded by anyone.
+* Claims are signed, not encrypted — so they can be read but not modified without breaking the signature.
+
+---
+
+### ✅ Summary
+
+| Term               | Meaning                               |
+| ------------------ | ------------------------------------- |
+| Claim              | A key-value pair stored in the JWT    |
+| Use                | Represents user info, roles, metadata |
+| Visible to client? | ✅ Yes (unless encrypted separately)   |
+| Trusted?           | ✅ Yes (if signature is verified)      |
+
+---
+
