@@ -1,0 +1,97 @@
+🛡️ What is CSRF?
+CSRF stands for Cross-Site Request Forgery — it’s a type of web security vulnerability where an attacker tricks a user into performing unwanted actions on a web application where they’re already authenticated.
+
+🔍 How CSRF Works
+You’re logged into a site (e.g., your bank).
+The site uses a cookie to keep you authenticated.
+You visit a malicious website in another tab.
+That malicious site sends a request (e.g., transfer money) to the bank site using your credentials (cookie).
+The bank processes the request, thinking you made it.
+
+💣 Example Attack Scenario
+1. You're logged in to `yourbank.com`.
+2. A malicious site tricks your browser into submitting a POST request to `yourbank.com/transfer?amount=1000&to=attacker`.
+3. Since you're logged in, your session cookie is sent, and the bank accepts the request.
+4. 💸 Money gets transferred — without your knowledge.
+
+Assume this is a bank transfer URL:
+https://bank.com/transfer?amount=1000&to=attacker_account
+If you're logged in and visit a malicious site with:
+<img src="https://bank.com/transfer?amount=1000&to=attacker_account">
+Your browser sends the request with your session cookie.
+
+🛡️ How to Prevent CSRF
+
+| METHOD                            | DESCRIPTION                                                              |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| CSRF Tokens                       | Include a random token in each form. Server checks it before processing. |
+| SameSite Cookies                  | Restricts when cookies are sent (e.g., not on cross-site requests).      |
+| Double Submit Cookies             | Send the token in both a cookie and a request header — must match.       |
+| Check Referer/Origin Header       | Validate the origin of requests (less reliable but helpful).             |
+
+
+✅ Example with CSRF Token
+<form action="/transfer" method="post">
+  <input type="hidden" name="csrf_token" value="abc123">
+  <!-- other inputs -->
+</form>
+On the server:
+if request.form["csrf_token"] != session["csrf_token"]:
+    abort(403)
+
+
+✅ What Does CSRF Protection Do?
+
+Spring Security adds **CSRF tokens** to state-changing requests (like POST, PUT, DELETE). These tokens:
+* Are stored in the user's session.
+* Must be included in any modifying request.
+* Prevent attackers from forging valid requests from another site.
+
+---
+
+✅ When Should You **Enable** CSRF?
+
+Keep CSRF enabled (default behavior) if:
+
+* You are building a **web application** that uses:
+  * Sessions
+  * Cookies
+  * Login forms
+* Users interact with your app via a browser.
+
+---
+
+🚫 When is it **Safe to Disable** CSRF?
+
+You can disable CSRF if your app is:
+* A stateless REST API
+* Uses token-based authentication (e.g., JWT in headers)
+* Does not use cookies or sessions for authentication
+* Is only accessed by trusted clients (like a mobile app or frontend SPA that you control)
+
+---
+
+### ✅ Example: Disable CSRF for REST API
+
+```java
+.csrf(csrf -> csrf.disable())
+```
+---
+
+### ✅ Example: Keep CSRF Enabled But Ignore for Specific Paths
+
+```java
+.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+```
+---
+
+🔐 Summary
+
+| App Type                 | CSRF Needed? | Why                                        |
+| ------------------------ | ------------ | -----------------------------------------  |
+| Web app with login form  | ✅ Yes        | Protect session-based actions             |
+| REST API with JWT        | ❌ No         | No session or cookies, stateless          |
+| SPA + backend API (CORS) | ❌ Often No   | Auth handled with tokens, not sessions    |
+| H2 Console               | ❌ No         | Dev tool, not a real user-facing endpoint |
+
+---
