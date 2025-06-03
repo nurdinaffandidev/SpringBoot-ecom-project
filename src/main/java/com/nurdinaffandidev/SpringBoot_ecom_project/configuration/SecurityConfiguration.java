@@ -3,9 +3,11 @@ package com.nurdinaffandidev.SpringBoot_ecom_project.configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.*;
@@ -47,7 +49,9 @@ public class SecurityConfiguration {
         // using builder method:
         return http
                 .csrf(customizer -> customizer.disable())
-                .authorizeHttpRequests(request -> request.anyRequest().authenticated())
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/user/register", "/user/login").permitAll() // bypass authentication for `/user/login` and `/user/register`
+                        .anyRequest().authenticated())
                 .headers(headers -> headers
                         .frameOptions(frameOption -> frameOption.disable())
                 )
@@ -118,5 +122,11 @@ public class SecurityConfiguration {
         // implement user details service to verify user
         provider.setUserDetailsService(userDetailsService);
         return provider;
+    }
+
+    // authenticationManager talks to authenticationProvider
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }
