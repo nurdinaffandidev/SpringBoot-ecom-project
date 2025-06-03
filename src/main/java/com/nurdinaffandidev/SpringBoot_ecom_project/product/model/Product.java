@@ -40,4 +40,17 @@ public class Product {
 //    private String imageType;
 //    @Lob
 //    private byte[] imageData;
+
+    // Contructor
+    // custom constructor to init product in DataLoader
+    public Product(String name, String description, String brand, BigDecimal price, String category, Date releaseDate, boolean productAvailable, int stockQuantity) {
+        this.name = name;
+        this.description = description;
+        this.brand = brand;
+        this.price = price;
+        this.category = category;
+        this.releaseDate = releaseDate;
+        this.productAvailable = productAvailable;
+        this.stockQuantity = stockQuantity;
+    }
 }
