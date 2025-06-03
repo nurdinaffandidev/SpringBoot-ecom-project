@@ -1,17 +1,31 @@
 package com.nurdinaffandidev.SpringBoot_ecom_project.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.*;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity // inform spring don't go with default flow, go with flow mentioned here. commenting this will enable default security flow
 public class SecurityConfiguration {
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
+    }
 
     @Bean // commenting this will enable default security flow
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -19,6 +33,8 @@ public class SecurityConfiguration {
 //        http.csrf(customizer -> customizer.disable());
 //        // create login restriction by applying authentication. Authorize all requests (require authentication)
 //        http.authorizeHttpRequests(request -> request.anyRequest().authenticated());
+//        // allow frames for H2 Console
+//        http.headers(headers -> headers.frameOptions(frameOption -> frameOption.disable()));
 //        // enable(optional) form login, this will return a view response ie. http format
 //        //http.formLogin(Customizer.withDefaults());
 //        // enable REST access, ie. return json response
@@ -29,8 +45,12 @@ public class SecurityConfiguration {
 //        return http.build();
 
         // using builder method:
-        return http.csrf(customizer -> customizer.disable())
+        return http
+                .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request.anyRequest().authenticated())
+                .headers(headers -> headers
+                        .frameOptions(frameOption -> frameOption.disable())
+                )
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
@@ -87,4 +107,16 @@ public class SecurityConfiguration {
 //        // return the object of security filter chain
 //        return http.build();
 //    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        // implement data authentication provider: DAO Authentication Provider
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        // implement default password encoder
+//        provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance()); // no hashing of password to required to verify plain-text password stored in database
+        provider.setPasswordEncoder(passwordEncoder()); // convert password to bcrypt hash and verify correct password entered with hashed password in database
+        // implement user details service to verify user
+        provider.setUserDetailsService(userDetailsService);
+        return provider;
+    }
 }
