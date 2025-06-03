@@ -1,0 +1,76 @@
+### ✅ What is `UserDetailsService` in Spring Security?
+
+`UserDetailsService` is a core interface in Spring Security used to:
+
+> 🔍 Load user-specific data during authentication.
+
+---
+
+### 🧩 Why is `UserDetailsService` important?
+
+When a user tries to log in, Spring Security needs to:
+
+1. Find the user by username
+2. Load their password and roles (authorities)
+3. Validate credentials
+
+`UserDetailsService` provides the mechanism for that.
+
+---
+
+### 🔧 Interface Definition:
+
+```java
+public interface UserDetailsService {
+    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+}
+```
+You implement this method to load user info from a database or another source.
+
+---
+
+### 🛠️ Common Usage
+
+Custom implementation example:
+
+```java
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return new org.springframework.security.core.userdetails.User(
+            user.getUsername(),
+            user.getPassword(),
+            user.getAuthorities() // usually a list of roles or permissions
+        );
+    }
+}
+```
+
+---
+
+### 🧠 Why not just use a hardcoded user?
+
+* You can, using `InMemoryUserDetailsManager`, but it’s only good for testing.
+* `UserDetailsService` lets you **connect to a real user database**.
+* Essential for real-world apps that store users in **SQL, LDAP, MongoDB**, etc.
+
+---
+
+### ✅ Summary
+
+| Feature    | Description                                                |
+| ---------- | ---------------------------------------------------------- |
+| Purpose    | Load user data by username for authentication              |
+| Returns    | A `UserDetails` object (Spring’s representation of a user) |
+| Used by    | Spring Security internally during login                    |
+| Where used | Custom login systems, DB-based user auth, JWT login setup  |
+
+---
