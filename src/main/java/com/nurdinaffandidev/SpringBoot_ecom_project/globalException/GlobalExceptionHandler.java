@@ -27,12 +27,20 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException exception) {
+//    public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException exception) {
+    public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new HashMap<>();
-        exception.getBindingResult().getFieldErrors().forEach(err ->
-                errors.put(err.getField(), err.getDefaultMessage())
+        exception.getBindingResult()
+                .getFieldErrors()
+                .forEach(fieldError -> errors.put(fieldError.getField(), fieldError.getDefaultMessage())
         );
-        return ResponseEntity.badRequest().body(errors);
+        ApiError error = new ApiError(
+                errors.toString(),
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+//        return ResponseEntity.badRequest().body(errors);
     }
 
     @ExceptionHandler(Exception.class)
@@ -46,7 +54,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<?> handleInvalidType(HttpMessageNotReadableException exception) {
+    public ResponseEntity<ApiError> handleInvalidType(HttpMessageNotReadableException exception) {
         Throwable cause = exception.getCause();
         String message;
 
@@ -64,6 +72,16 @@ public class GlobalExceptionHandler {
 
         ApiError error = new ApiError(
                 message,
+                HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException exception) {
+        ApiError error = new ApiError(
+                exception.getMessage(),
                 HttpStatus.BAD_REQUEST.value(),
                 LocalDateTime.now()
         );

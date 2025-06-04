@@ -39,3 +39,6 @@ VALUES ('EchoBuds Pro',
         '2023-10-05',
         true,
         10);
+
+INSERT INTO user_access (username, password, role) VALUES ('nurdin_admin', '$2a$12$jZ0nXr9boxDRmdh89HzSZusJ1djPUyaW8jOk0l3LS.JTrokt6QS2C', 'ADMIN'); -- password 'na@123'
+INSERT INTO user_access (username, password, role) VALUES ('nurdin_user', '$2a$12$L4wvtg0Syry4Tf3rWwkz8umOFhY1d3OdeMBaWfDdIyjAzuj0hKiva', 'USER'); -- password 'nu@123'

@@ -1,0 +1,117 @@
+### ✅ What is `UserDetails` in Spring Security?
+
+`UserDetails` is an interface that represents a user's core information required
+for authentication and authorization in Spring Security.
+
+---
+
+### 🔍 Why does Spring use `UserDetails`?
+
+When Spring Security needs to authenticate a user, it calls:
+
+```java
+UserDetailsService.loadUserByUsername(String username)
+```
+
+This returns a `UserDetails` object, which Spring uses to:
+1. Get the username
+2. Get the password
+3. Get the user's roles (authorities)
+4. Check if the account is locked, expired, etc.
+
+---
+
+### 🔧 Interface Definition (Simplified):
+
+```java
+public interface UserDetails {
+    String getUsername();
+    String getPassword();
+    Collection<? extends GrantedAuthority> getAuthorities();
+
+    boolean isAccountNonExpired();
+    boolean isAccountNonLocked();
+    boolean isCredentialsNonExpired();
+    boolean isEnabled();
+}
+```
+
+---
+
+### 🧱 Common Implementation: `org.springframework.security.core.userdetails.User`
+
+Spring provides a built-in implementation:
+
+```java
+UserDetails user = User
+    .withUsername("admin")
+    .password("{noop}password") // {noop} disables encoding
+    .roles("ADMIN")
+    .build();
+```
+
+---
+
+### 🛠️ Custom Implementation Example:
+
+If you have your own `User` entity (e.g. from a database), you usually create a wrapper:
+
+```java
+public class CustomUserDetails implements UserDetails {
+
+    private final User user; // your app's user entity
+
+    public CustomUserDetails(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(user.getRole()));
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return user.isEnabled();
+    }
+}
+```
+
+---
+
+### ✅ Summary
+
+| Feature            | Purpose                                     |
+| ------------------ | ------------------------------------------- |
+| `getUsername()`    | Username for login                          |
+| `getPassword()`    | Encrypted password                          |
+| `getAuthorities()` | Roles or permissions (e.g., `ROLE_ADMIN`)   |
+| `isEnabled()` etc. | Account status flags (active, locked, etc.) |
+| Used by            | Spring Security during authentication       |
+
+---
